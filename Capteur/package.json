@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "azure-iot-device-amqp": "^1.14.1"
+  }
+}

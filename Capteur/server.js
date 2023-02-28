@@ -11,29 +11,45 @@ const client = clientFromConnectionString(connectionString);
 // use Message object from core package
 const Message = require("azure-iot-device").Message;
 
+const intervalInMinutes = 2;
+
+const sendMessage = () => {
+    try {
+        var msg = new Message(
+            JSON.stringify({
+                device: "Device_1",
+                position: { latitude: 0.0, longitude: 0.0 },
+                decibels: Math.random() * 100,
+            })
+        );
+        client.sendEvent(msg, function (err) {
+            if (err) {
+                console.log(err.toString());
+            } else {
+                console.log("Message sent at " + new Date().toISOString());
+            }
+        });
+    } catch (e) {
+        console.log(e);
+    }
+};
+
 const connectCallback = function (err) {
     if (err) {
         console.error("Could not connect: " + err);
     } else {
-        console.log("Client connected");
-        try {
-            var msg = new Message(
-                JSON.stringify({
-                    device: "Device_1",
-                    position: { latitude: 0.0, longitude: 0.0 },
-                    decibels: 50,
-                })
-            );
-            client.sendEvent(msg, function (err) {
-                if (err) {
-                    console.log(err.toString());
-                } else {
-                    console.log("Message sent");
-                }
-            });
-        } catch (e) {
-            console.log(e);
-        }
+        console.log(
+            "Client connected, send a message every " +
+                intervalInMinutes +
+                " minutes."
+        );
+
+        sendMessage();
+
+        const interval = setInterval(
+            sendMessage,
+            1000 * 60 * intervalInMinutes
+        );
 
         // client.getTwin(function (err, twin) {
         //     if (err) {
@@ -61,7 +77,3 @@ const connectCallback = function (err) {
 };
 
 client.open(connectCallback);
-
-/**
- * "position": { "latitude": 0.0, "longitude": 0 }, "decibels": 0,
- */

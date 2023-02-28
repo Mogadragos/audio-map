@@ -41,11 +41,30 @@ const eventGridTrigger: AzureFunction = async function (
 
         // Insert DATA into DB
 
-        // TODO
+        const table = new sql.Table("audiomap");
+        table.create = true; // Try to create table if necessary
+        table.columns.add("id", sql.Int, { nullable: true, primary: true });
+        table.columns.add("device", sql.VarChar(50), { nullable: false });
+        table.columns.add("latitude", sql.VarChar(50), { nullable: false });
+        table.columns.add("longitude", sql.VarChar(50), { nullable: false });
+        table.columns.add("decibels", sql.VarChar(50), { nullable: false });
+        table.columns.add("report_date", sql.DateTime, { nullable: false });
 
-        // var resultSet = await poolConnection.request()
-        //     .query(`INSERT INTO table (nom_colonne_1, nom_colonne_2, ...
-        //         VALUES ('valeur 1', 'valeur 2', ...)`);
+        table.rows.add(
+            null,
+            row.device,
+            row.latitude,
+            row.longitude,
+            row.decibels,
+            row.report_date
+        );
+
+        const request = new sql.Request();
+        request.bulk(table, (err, result) => {
+            if (err) {
+                context.log(err);
+            }
+        });
     } catch (e) {
         context.log(e);
     }
